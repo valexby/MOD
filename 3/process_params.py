@@ -48,5 +48,23 @@ equations = [
 
 result = sym.solve(equations, list(nodes.keys()))
 
-for pair in result.items():
+
+p = 0.75
+pi1 = 0.7
+pi2 = 0.65
+
+Pblock = (
+    1 - p) * pi1 * sum([v for k, v in result.items() if str(k)[1] == '1'])
+Pblockpi1 = pi2 * (result[P121] + result[P021])
+
+Lqueue = 1 * (result[P111] + result[P011]) + 2 * (result[P021] + result[P121])
+
+Wc = 1 / (1 - p) * (1 - Pblock - Pblockpi1)
+
+
+
+for pair in sorted(result.items(), key=str):
     print('{}: {}'.format(*pair))
+print('Pбл.ист: {}'.format(Pblock))
+print('Lоч: {}'.format(Lqueue))
+print('Wc: {}'.format(Wc))
