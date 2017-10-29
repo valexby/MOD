@@ -7,17 +7,19 @@ P = 0.75
 PI1 = 0.7
 PI2 = 0.65
 
-TICKS = 1_000_00
+TICKS = 100000
 
 
 class State:
-    def __init__(self, channel1, queue, channel2):
+    def __init__(self, source, channel1, queue, channel2):
+        self.source = source
         self.channel1 = channel1
         self.channel2 = channel2
         self.queue = queue
 
     def __str__(self):
-        return 'P{}{}{}'.format(self.channel1, self.queue, self.channel2)
+        return 'P{}{}{}{}'.format(self.source, self.channel1, self.queue,
+                                  self.channel2)
 
 
 cnt = Counter()
@@ -25,12 +27,12 @@ cnt = Counter()
 Wc = 0
 arrivals = []
 arrivals_mean = []
-income = 0
 processed = 0
 source_blocked = 0
+channel_blocked = 0
 Lqueue = 0
 
-state = State(0, 0, 0)
+state = State(0, 0, 0, 0)
 
 for tick in range(TICKS):
 
@@ -58,23 +60,34 @@ for tick in range(TICKS):
             elif state.queue < 2 and state.channel2 == 1:
                 state.queue += 1
                 state.channel1 = 0
+            elif state.queue == 2:
+                state.channel1 = 2
+                channel_blocked += 1
 
-    if arrival:
-        income += 1
+    elif state.channel1 == 2:
+        if state.queue < 2:
+            state.channel1 = 1
+            state.queue -= 1
+
+    if arrival or state.source == 1:
         if state.channel1 == 0:
             arrivals.append(0)
             state.channel1 = 1
+            state.source = 0
         else:
+            state.source = 1
             source_blocked += 1
 
     Lqueue += state.queue
-    arrivals = [arrival +  1 for arrival in arrivals]
+
+    arrivals = [a + 1 for a in arrivals]
 
     cnt[str(state)] += 1
 
 for k, v in sorted(cnt.items()):
     print('{}: {}'.format(k, v / TICKS))
 
-print('Pотк.ист: {}'.format(source_blocked / TICKS))
+print('Pбл.ист: {}'.format(source_blocked / TICKS))
 print('Lоч: {}'.format(Lqueue / TICKS))
-print('Wc: {}'.format(sum(arrivals_mean)/len(arrivals_mean)))
+print('Wc: {}'.format(sum(arrivals_mean) / len(arrivals_mean)))
+print(channel_blocked / TICKS)
