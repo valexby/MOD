@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 import random
+import click
 from collections import Counter
+
+TICKS = 100000
 
 
 class State:
@@ -19,11 +22,6 @@ class State:
         return str(self) == other
 
 
-P = 0.25
-PI1 = 0.3
-PI2 = 0.35
-TICKS = 100000
-
 state = State(0, 0, 0, 0)
 cnt = Counter()
 
@@ -33,7 +31,34 @@ queue = 0
 system = 0
 
 
-def fsm():
+@click.command(help='Run Markov state machine')
+@click.argument('p', required=True, type=click.FLOAT, metavar='source')
+@click.argument(
+    'pi1', required=True, type=click.FLOAT, metavar='first channel')
+@click.argument(
+    'pi2', required=True, type=click.FLOAT, metavar='second channel')
+def markov(p, pi1, pi2):
+
+    P = 1 - p
+    PI1 = 1 - pi1
+    PI2 = 1 - pi2
+
+    for _ in range(TICKS):
+        fsm(P, PI1, PI2)
+
+    for k, v in sorted(cnt.items()):
+        print('{}: {}'.format(k, v / TICKS))
+
+    Pblocked = source_blocked / TICKS
+    Pchannel = channel_blocked / TICKS
+
+    print('Pblocked: {}'.format(source_blocked / TICKS))
+    print('Lqueue: {}'.format(queue / TICKS))
+    print('Wc: {}'.format(
+        (system / TICKS) / ((P) * (1 - Pblocked - Pchannel))))
+
+
+def fsm(P, PI1, PI2):
 
     global state, source_blocked, channel_blocked, queue, system
 
@@ -213,15 +238,5 @@ def fsm():
             state = State(0, 0, 1, 1)
 
 
-for _ in range(TICKS):
-    fsm()
-
-for k, v in sorted(cnt.items()):
-    print('{}: {}'.format(k, v / TICKS))
-
-Pblocked = source_blocked / TICKS
-Pchannel = channel_blocked / TICKS
-
-print('Pblocked: {}'.format(source_blocked / TICKS))
-print('Lqueue: {}'.format(queue / TICKS))
-print('Wc: {}'.format((system / TICKS) / ((P) * (1 - Pblocked - Pchannel))))
+if __name__ == '__main__':
+    markov()
