@@ -18,7 +18,7 @@ fsm = []
 
 for top, block in blocks:
 
-    top_statement = '{} state == P{}:'.format(condition_prefix, top)
+    top_statement = '{} state == \'P{}\':'.format(condition_prefix, top)
 
     result = ''
 
@@ -31,13 +31,17 @@ for top, block in blocks:
         cleaned = without_operators.replace('1-', ' not ').replace(
             '(', '').replace(')', '')
 
+        if 'or' in cleaned:
+            cleaned = cleaned.partition('or')
+            cleaned = ' or '.join(['({})'.format(expression) for expression in cleaned if expression != 'or'])
+
         cleaned = ' '.join(cleaned.split())
 
-        condition = '\t {} {}:'.format(condition_prefix, cleaned)
+        condition = ' ' * 4 + '{} {}:'.format(condition_prefix, cleaned)
 
         state = statement.split('->')[1].strip()[:4]
 
-        transition = '\t\tstate = State({}, {}, {}, {})'.format(*state)
+        transition = ' ' * 8 + 'state = State({}, {}, {}, {})'.format(*state)
 
         result += '\n'.join([condition, transition]) + '\n'
 
@@ -45,5 +49,5 @@ for top, block in blocks:
 
     fsm.append('\n'.join([top_statement, result]))
 
-with open('fsm.py', 'w') as file:
-    file.writelines(fsm)
+for line in fsm:
+    print(line)

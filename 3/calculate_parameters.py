@@ -65,13 +65,14 @@ Lqueue = 1 * sum([v for k, v in result.items() if str(k)[3] == '1']) + 2 * sum(
     [v for k, v in result.items() if str(k)[3] == '2'])
 
 Lc = 1 * sum([v for k, v in result.items() if str(k)[3] == '0']) + 2 * sum(
-    [v for k, v in result.items() if str(k)[3] == '1']) + 3 * sum(
+   [v for k, v in result.items() if str(k)[3] == '1']) + 3 * sum(
         [v for k, v in result.items() if str(k)[3] == '2'])
 
 Wc = Lc / ((1 - p) * (1 - Pblock - Pblockpi1))
 
 for pair in sorted(result.items(), key=str):
     print('{}: {}'.format(*pair))
-print('Pбл.ист: {}'.format(Pblock))
-print('Lоч: {}'.format(Lqueue))
+print('Pblocked: {}'.format(Pblock))
+print('Lqueue: {}'.format(Lqueue))
 print('Wc: {}'.format(Wc))
+
