@@ -40,6 +40,7 @@ for line in lines:
     else:
         nodes[right] += ' + P{} * ({})'.format(left, equation)
 
+
 nodes.update((k, '{} - {}'.format(v, k)) for k, v in nodes.items())
 
 nodes['P0000'] = ' + '.join(nodes.keys()) + '-1'
@@ -64,15 +65,13 @@ Pblockpi1 = sum([v for k, v in result.items() if str(k)[2] == '2'])
 Lqueue = 1 * sum([v for k, v in result.items() if str(k)[3] == '1']) + 2 * sum(
     [v for k, v in result.items() if str(k)[3] == '2'])
 
-Lc = 1 * sum([v for k, v in result.items() if str(k)[3] == '0']) + 2 * sum(
-   [v for k, v in result.items() if str(k)[3] == '1']) + 3 * sum(
-        [v for k, v in result.items() if str(k)[3] == '2'])
+Lc = Lqueue + sum([v for k, v in result.items() if str(k)[2] != '0']) + sum(
+    [v for k, v in result.items() if str(k)[4] == '1'])
 
-Wc = Lc / ((1 - p) * (1 - Pblock - Pblockpi1))
+Wc = Lc / ((1 - p) * (1 - Pblock))
 
 for pair in sorted(result.items(), key=str):
     print('{}: {}'.format(*pair))
 print('Pblocked: {}'.format(Pblock))
 print('Lqueue: {}'.format(Lqueue))
 print('Wc: {}'.format(Wc))
-

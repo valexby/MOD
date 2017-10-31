@@ -32,11 +32,11 @@ system = 0
 
 
 @click.command(help='Run Markov state machine')
-@click.argument('p', required=True, type=click.FLOAT, metavar='source')
+@click.argument('p', required=True, type=click.FLOAT, metavar='<source>')
 @click.argument(
-    'pi1', required=True, type=click.FLOAT, metavar='first channel')
+    'pi1', required=True, type=click.FLOAT, metavar='<first channel>')
 @click.argument(
-    'pi2', required=True, type=click.FLOAT, metavar='second channel')
+    'pi2', required=True, type=click.FLOAT, metavar='<second channel>')
 def markov(p, pi1, pi2):
 
     P = 1 - p
@@ -50,12 +50,11 @@ def markov(p, pi1, pi2):
         print('{}: {}'.format(k, v / TICKS))
 
     Pblocked = source_blocked / TICKS
-    Pchannel = channel_blocked / TICKS
 
     print('Pblocked: {}'.format(source_blocked / TICKS))
     print('Lqueue: {}'.format(queue / TICKS))
     print('Wc: {}'.format(
-        (system / TICKS) / ((P) * (1 - Pblocked - Pchannel))))
+        (system / TICKS) / ((P) * (1 - Pblocked))))
 
 
 def fsm(P, PI1, PI2):
@@ -69,16 +68,16 @@ def fsm(P, PI1, PI2):
     cnt[str(state)] += 1
 
     queue += state.queue
+    system += state.queue + state.channel2
+    system += state.channel1 if state.channel1 != 2 else 1
 
     if state == 'P0000':
-        system += 1
         if p:
             state = State(0, 0, 0, 0)
         elif not p:
             state = State(0, 1, 0, 0)
 
     elif state == 'P0100':
-        system += 1
         if not p and not pi1:
             state = State(0, 1, 0, 1)
         elif p and not pi1:
@@ -89,7 +88,7 @@ def fsm(P, PI1, PI2):
             state = State(1, 1, 0, 0)
 
     elif state == 'P1100':
-        system += 1
+        # system += 1
         source_blocked += 1
         if pi1:
             state = State(1, 1, 0, 0)
@@ -97,7 +96,6 @@ def fsm(P, PI1, PI2):
             state = State(0, 1, 0, 1)
 
     elif state == 'P0001':
-        system += 1
         if p and not pi2:
             state = State(0, 0, 0, 0)
         elif p and pi2:
@@ -108,7 +106,6 @@ def fsm(P, PI1, PI2):
             state = State(0, 1, 0, 1)
 
     elif state == 'P0101':
-        system += 1
         if p and pi1 and not pi2:
             state = State(0, 1, 0, 0)
         elif not p and not pi1 and pi2:
@@ -125,7 +122,6 @@ def fsm(P, PI1, PI2):
             state = State(1, 1, 0, 0)
 
     elif state == 'P1101':
-        system += 1
         source_blocked += 1
         if pi1 and not pi2:
             state = State(1, 1, 0, 0)
@@ -137,7 +133,6 @@ def fsm(P, PI1, PI2):
             state = State(0, 1, 1, 1)
 
     elif state == 'P0111':
-        system += 2
         if p and not pi1 and not pi2:
             state = State(0, 0, 1, 1)
         elif p and pi1 and not pi2:
@@ -154,7 +149,6 @@ def fsm(P, PI1, PI2):
             state = State(1, 1, 0, 1)
 
     elif state == 'P1111':
-        system += 2
         source_blocked += 1
         if not pi1 and pi2:
             state = State(0, 1, 2, 1)
@@ -166,7 +160,6 @@ def fsm(P, PI1, PI2):
             state = State(1, 1, 1, 1)
 
     elif state == 'P0011':
-        system += 2
         if p and pi2:
             state = State(0, 0, 1, 1)
         elif not p and pi2:
@@ -177,7 +170,6 @@ def fsm(P, PI1, PI2):
             state = State(0, 1, 0, 1)
 
     elif state == 'P0121':
-        system += 3
         if p and pi1 and not pi2:
             state = State(0, 1, 1, 1)
         elif (p and pi1 and pi2) or (not p and not pi1 and not pi2):
@@ -194,7 +186,6 @@ def fsm(P, PI1, PI2):
             state = State(1, 2, 2, 1)
 
     elif state == 'P0221':
-        system += 3
         channel_blocked += 1
         if not pi1 and not pi2:
             state = State(0, 1, 2, 1)
@@ -206,7 +197,6 @@ def fsm(P, PI1, PI2):
             state = State(1, 2, 2, 1)
 
     elif state == 'P1121':
-        system += 3
         source_blocked += 1
         if pi1 and pi2:
             state = State(1, 1, 2, 1)
@@ -218,7 +208,6 @@ def fsm(P, PI1, PI2):
             state = State(0, 1, 2, 1)
 
     elif state == 'P1221':
-        system += 3
         source_blocked += 1
         channel_blocked += 1
         if pi2:
@@ -227,7 +216,6 @@ def fsm(P, PI1, PI2):
             state = State(0, 1, 2, 1)
 
     elif state == 'P0021':
-        system += 3
         if p and pi2:
             state = State(0, 0, 2, 1)
         elif not p and pi2:
