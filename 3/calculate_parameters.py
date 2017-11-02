@@ -5,33 +5,38 @@ import re
 
 p, pi1, pi2 = sym.var('p pi1 pi2')
 
-P0000 = sym.Symbol('P0000')
-P0001 = sym.Symbol('P0001')
-P0011 = sym.Symbol('P0011')
-P0021 = sym.Symbol('P0021')
-P0100 = sym.Symbol('P0100')
-P0101 = sym.Symbol('P0101')
-P0111 = sym.Symbol('P0111')
-P0121 = sym.Symbol('P0121')
-P0221 = sym.Symbol('P0221')
-P1100 = sym.Symbol('P1100')
-P1101 = sym.Symbol('P1101')
-P1111 = sym.Symbol('P1111')
-P1121 = sym.Symbol('P1121')
-P1221 = sym.Symbol('P1221')
+P20000 = sym.Symbol('P20000')
+P10000 = sym.Symbol('P10000')
+P20001 = sym.Symbol('P20001')
+P20010 = sym.Symbol('P20010')
+P20011 = sym.Symbol('P20011')
+P20101 = sym.Symbol('P20101')
+P20111 = sym.Symbol('P20111')
+P21010 = sym.Symbol('P21010')
+P21011 = sym.Symbol('P21011')
+P21111 = sym.Symbol('P21111')
+P10001 = sym.Symbol('P10001')
+P10010 = sym.Symbol('P10010')
+P10011 = sym.Symbol('P10011')
+P10101 = sym.Symbol('P10101')
+P10111 = sym.Symbol('P10111')
+P11010 = sym.Symbol('P11010')
+P11011 = sym.Symbol('P11011')
+P11111 = sym.Symbol('P11111')
 
 with open('state_diagram.dot', 'r') as f:
     lines = f.read().splitlines()
 
 lines = [line.strip() for line in lines]
-
+import pdb
+pdb.set_trace()
 nodes = {}
 for line in lines:
 
     if '->' not in line:
         continue
 
-    right = 'P{}'.format(line.split('->')[1][1:5])
+    right = 'P{}'.format(line.split('->')[1][1:6])
     left = line.split('->')[0]
     equation = re.findall(r'"([^"]*)"', line)[0]
 
@@ -43,7 +48,7 @@ for line in lines:
 
 nodes.update((k, '{} - {}'.format(v, k)) for k, v in nodes.items())
 
-nodes['P0000'] = ' + '.join(nodes.keys()) + '-1'
+nodes['P20000'] = ' + '.join(nodes.keys()) + '-1'
 
 equations = [
     sym.sympify(expr).subs({

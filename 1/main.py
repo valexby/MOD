@@ -72,7 +72,7 @@ def main(a, m, s):
     print('La: {}'.format(aperiodic))
 
     plt.hist(numbers, bins=20, normed=True, edgecolor='w')
-    plt.show()
+    plt.savefig("out.png", fmt='png')
 
 
 if __name__ == '__main__':
