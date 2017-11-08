@@ -7,10 +7,8 @@ p, pi1, pi2 = sym.var('p pi1 pi2')
 
 P20000 = sym.Symbol('P20000')
 P10000 = sym.Symbol('P10000')
-P20001 = sym.Symbol('P20001')
 P20010 = sym.Symbol('P20010')
 P20011 = sym.Symbol('P20011')
-P20101 = sym.Symbol('P20101')
 P20111 = sym.Symbol('P20111')
 P21010 = sym.Symbol('P21010')
 P21011 = sym.Symbol('P21011')
@@ -28,8 +26,6 @@ with open('state_diagram.dot', 'r') as f:
     lines = f.read().splitlines()
 
 lines = [line.strip() for line in lines]
-import pdb
-pdb.set_trace()
 nodes = {}
 for line in lines:
 
@@ -46,37 +42,54 @@ for line in lines:
         nodes[right] += ' + P{} * ({})'.format(left, equation)
 
 
+for i in sorted(nodes.keys()):
+    print('{} = {}'.format(i, nodes[i]))
 nodes.update((k, '{} - {}'.format(v, k)) for k, v in nodes.items())
 
 nodes['P20000'] = ' + '.join(nodes.keys()) + '-1'
 
 equations = [
     sym.sympify(expr).subs({
-        p: 0.75,
-        pi1: 0.7,
-        pi2: 0.65
+        pi1: 0.5,
+        pi2: 0.6
     }) for expr in nodes.values()
 ]
 
 result = sym.solve(equations, list(nodes.keys()))
 
-p = 0.75
-pi1 = 0.7
-pi2 = 0.65
+pi1 = 0.5
+pi2 = 0.6
 
-Pblock = sum([v for k, v in result.items() if str(k)[1] == '1'])
-Pblockpi1 = sum([v for k, v in result.items() if str(k)[2] == '2'])
+LAMBDA = 0.5
 
-Lqueue = 1 * sum([v for k, v in result.items() if str(k)[3] == '1']) + 2 * sum(
-    [v for k, v in result.items() if str(k)[3] == '2'])
+A = sum([v for k, v in result.items() if str(k)[5] == '1']) * (1 - pi2)
 
-Lc = Lqueue + sum([v for k, v in result.items() if str(k)[2] != '0']) + sum(
-    [v for k, v in result.items() if str(k)[4] == '1'])
+Q = A / LAMBDA
 
-Wc = Lc / ((1 - p) * (1 - Pblock))
+# Lc = 0
+# for k, v in result.items():
+#     s = 0
+#     for i in range(2, 6):
+#         if str(k)[i] == '1':
+#             s += 1
+#     Lc += s * v
+
+Lqueue = sum([v for k, v in result.items() if str(k)[2] == '1']) + \
+         sum([v for k, v in result.items() if str(k)[3] == '1'])
+print('Lq1: {}'.format(sum([v for k, v in result.items() if str(k)[2] == '1'])))
+print('Lq2: {}'.format(sum([v for k, v in result.items() if str(k)[3] == '1'])))
+A1 = sum([v for k, v in result.items() if str(k)[4] == '1']) * (1 - pi1)
+Q1 = A1 / LAMBDA
+print('Q1: {}'.format(Q1))
+
+Lc = Lqueue + sum([v for k, v in result.items() if str(k)[4] == '1']) + \
+     sum([v for k, v in result.items() if str(k)[5] == '1'])
+
+Wc = (Lqueue / LAMBDA) + Q / (0.5/2.25)
 
 for pair in sorted(result.items(), key=str):
     print('{}: {}'.format(*pair))
-print('Pblocked: {}'.format(Pblock))
-print('Lqueue: {}'.format(Lqueue))
+print('Q: {}'.format(Q))
 print('Wc: {}'.format(Wc))
+print('A: {}'.format(A))
+print('Lq: {}'.format(Lqueue))

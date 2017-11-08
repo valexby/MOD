@@ -11,11 +11,10 @@ states = [line.strip() for line in lines if '->' in line]
 
 replacements = {'+': ' or ', '*': ' and '}
 
-blocks = itertools.groupby(states, lambda s: s[:4])
+blocks = itertools.groupby(states, lambda s: s[:5])
 
 condition_prefix = 'if'
 fsm = []
-
 for top, block in blocks:
 
     top_statement = '{} state == \'P{}\':'.format(condition_prefix, top)
@@ -39,9 +38,9 @@ for top, block in blocks:
 
         condition = ' ' * 4 + '{} {}:'.format(condition_prefix, cleaned)
 
-        state = statement.split('->')[1].strip()[:4]
+        state = statement.split('->')[1].strip()[:5]
 
-        transition = ' ' * 8 + 'state = State({}, {}, {}, {})'.format(*state)
+        transition = ' ' * 8 + 'state = State({}, {}, {}, {}, {})'.format(*state)
 
         result += '\n'.join([condition, transition]) + '\n'
 
