@@ -44,6 +44,7 @@ for line in lines:
 
 for i in sorted(nodes.keys()):
     print('{} = {}'.format(i, nodes[i]))
+
 nodes.update((k, '{} - {}'.format(v, k)) for k, v in nodes.items())
 
 nodes['P20000'] = ' + '.join(nodes.keys()) + '-1'
@@ -66,26 +67,17 @@ A = sum([v for k, v in result.items() if str(k)[5] == '1']) * (1 - pi2)
 
 Q = A / LAMBDA
 
-# Lc = 0
-# for k, v in result.items():
-#     s = 0
-#     for i in range(2, 6):
-#         if str(k)[i] == '1':
-#             s += 1
-#     Lc += s * v
-
 Lqueue = sum([v for k, v in result.items() if str(k)[2] == '1']) + \
          sum([v for k, v in result.items() if str(k)[3] == '1'])
-print('Lq1: {}'.format(sum([v for k, v in result.items() if str(k)[2] == '1'])))
-print('Lq2: {}'.format(sum([v for k, v in result.items() if str(k)[3] == '1'])))
-A1 = sum([v for k, v in result.items() if str(k)[4] == '1']) * (1 - pi1)
-Q1 = A1 / LAMBDA
-print('Q1: {}'.format(Q1))
+Lq1 = sum([v for k, v in result.items() if str(k)[2] == '1'])
+Lq2 = sum([v for k, v in result.items() if str(k)[3] == '1'])
+Lpi1 = sum([v for k, v in result.items() if str(k)[4] == '1'])
+Lpi2 = sum([v for k, v in result.items() if str(k)[5] == '1'])
 
 Lc = Lqueue + sum([v for k, v in result.items() if str(k)[4] == '1']) + \
      sum([v for k, v in result.items() if str(k)[5] == '1'])
 
-Wc = (Lqueue / LAMBDA) + Q / (0.5/2.25)
+Wc =  (1 / (1 - pi1)) + (1 / (1 - pi2)) + (Lq2 / A) + (Lq1 / A)
 
 for pair in sorted(result.items(), key=str):
     print('{}: {}'.format(*pair))
