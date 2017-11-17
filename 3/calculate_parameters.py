@@ -76,12 +76,18 @@ Lpi2 = sum([v for k, v in result.items() if str(k)[5] == '1'])
 
 Lc = Lqueue + sum([v for k, v in result.items() if str(k)[4] == '1']) + \
      sum([v for k, v in result.items() if str(k)[5] == '1'])
+Pdrop = Lq1 * LAMBDA
+Qsource = 1 - Pdrop
+Asource = Qsource * LAMBDA
 
-Wc =  (1 / (1 - pi1)) + (1 / (1 - pi2)) + (Lq2 / A) + (Lq1 / A)
-
+Wc =  (1 / (1 - pi1)) + (1 / (1 - pi2)) + (Lq2 / A) + ((Lq1) / Asource)
+#Wc =  (Q/(1-pi1)) + (Lq2/A) + (Lq1/LAMBDA) + (Q/(1-pi2))
 for pair in sorted(result.items(), key=str):
     print('{}: {}'.format(*pair))
 print('Q: {}'.format(Q))
 print('Wc: {}'.format(Wc))
 print('A: {}'.format(A))
 print('Lq: {}'.format(Lqueue))
+print('Pdrop: {}'.format(Pdrop))
+print('Qsource: {}'.format(Qsource))
+print('Asource: {}'.format(Asource))
