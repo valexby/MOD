@@ -42,11 +42,21 @@ for line in lines:
         nodes[right] += ' + P{} * ({})'.format(left, equation)
 
 
-for i in sorted(nodes.keys()):
-    print('{} = {}'.format(i, nodes[i]))
+# for i in sorted(nodes.keys()):
+#     print('{} = {}'.format(i, nodes[i]))
 
 nodes.update((k, '{} - {}'.format(v, k)) for k, v in nodes.items())
+nodes_with_gen = nodes.copy()
+delete_keys = [x for x in nodes_with_gen.keys() if x[1] == '2']
+for key in delete_keys:
+    nodes_with_gen.pop(key)
+nodes_with_gen['P10000'] = ' + '.join(set(nodes_with_gen.keys()) - set(['P10000'])) + ' -1'
 
+# for i in sorted(nodes_with_gen.keys()):
+#     print('{} = {}'.format(i, nodes_with_gen[i]))
+
+for i in sorted(nodes.keys()):
+    print('{} = {}'.format(i, nodes[i]))
 nodes['P20000'] = ' + '.join(nodes.keys()) + '-1'
 
 equations = [
@@ -76,11 +86,15 @@ Lpi2 = sum([v for k, v in result.items() if str(k)[5] == '1'])
 
 Lc = Lqueue + sum([v for k, v in result.items() if str(k)[4] == '1']) + \
      sum([v for k, v in result.items() if str(k)[5] == '1'])
-Pdrop = Lq1 * LAMBDA
+Pdrop = Lq1 * (1-pi1) * 2
 Qsource = 1 - Pdrop
 Asource = Qsource * LAMBDA
 
-Wc =  (1 / (1 - pi1)) + (1 / (1 - pi2)) + (Lq2 / A) + ((Lq1) / Asource)
+Wq1 = (Lq1) / Asource
+Wq2 = Lq2 / A
+Wch1 = 1 / (1 - pi1)
+Wch2 = 1 / (1 - pi2)
+Wc =  Wq1 + Wq2 + Wch1 + Wch2
 #Wc =  (Q/(1-pi1)) + (Lq2/A) + (Lq1/LAMBDA) + (Q/(1-pi2))
 for pair in sorted(result.items(), key=str):
     print('{}: {}'.format(*pair))
@@ -91,3 +105,7 @@ print('Lq: {}'.format(Lqueue))
 print('Pdrop: {}'.format(Pdrop))
 print('Qsource: {}'.format(Qsource))
 print('Asource: {}'.format(Asource))
+print('Wq1: {}'.format(Wq1))
+print('Wq2: {}'.format(Wq2))
+print('Wch1: {}'.format(Wch1))
+print('Wch2: {}'.format(Wch2))
