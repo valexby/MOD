@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 import numpy as np
-import PyQt5
+import matplotlib
+
+matplotlib.rcParams['backend'] = "Qt4Agg"
 import matplotlib.pyplot as plt
 import click
 
@@ -22,7 +24,8 @@ def draw_plot(*args):
     print('Variance: {}'.format(np.std(args)**2))
 
     plt.hist(args, bins=50)
-    plt.savefig('out.png', fmt='png')
+    plt.show()
+#    plt.savefig('out.png', fmt='png')
 
 
 @cli.command(help='Generate uniform distribution')

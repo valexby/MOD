@@ -41,22 +41,11 @@ for line in lines:
     else:
         nodes[right] += ' + P{} * ({})'.format(left, equation)
 
-
-# for i in sorted(nodes.keys()):
-#     print('{} = {}'.format(i, nodes[i]))
-
 nodes.update((k, '{} - {}'.format(v, k)) for k, v in nodes.items())
-nodes_with_gen = nodes.copy()
-delete_keys = [x for x in nodes_with_gen.keys() if x[1] == '2']
-for key in delete_keys:
-    nodes_with_gen.pop(key)
-nodes_with_gen['P10000'] = ' + '.join(set(nodes_with_gen.keys()) - set(['P10000'])) + ' -1'
-
-# for i in sorted(nodes_with_gen.keys()):
-#     print('{} = {}'.format(i, nodes_with_gen[i]))
 
 for i in sorted(nodes.keys()):
     print('{} = {}'.format(i, nodes[i]))
+good_keys = [x for x in nodes.keys() if x[1] == '1']
 nodes['P20000'] = ' + '.join(nodes.keys()) + '-1'
 
 equations = [
@@ -67,6 +56,16 @@ equations = [
 ]
 
 result = sym.solve(equations, list(nodes.keys()))
+
+nodes['P20000'] = ' + '.join(good_keys) + '-1'
+equations = [
+    sym.sympify(expr).subs({
+        pi1: 0.5,
+        pi2: 0.6
+    }) for expr in nodes.values()
+]
+
+result2 = sym.solve(equations, list(nodes.keys()))
 
 pi1 = 0.5
 pi2 = 0.6
@@ -86,7 +85,7 @@ Lpi2 = sum([v for k, v in result.items() if str(k)[5] == '1'])
 
 Lc = Lqueue + sum([v for k, v in result.items() if str(k)[4] == '1']) + \
      sum([v for k, v in result.items() if str(k)[5] == '1'])
-Pdrop = Lq1 * (1-pi1) * 2
+Pdrop = sum([v for k, v in result2.items() if str(k)[1] == '1' and str(k)[2] == '1'and str(k)[4] == '1']) * (1-pi1)
 Qsource = 1 - Pdrop
 Asource = Qsource * LAMBDA
 
@@ -96,7 +95,7 @@ Wch1 = 1 / (1 - pi1)
 Wch2 = 1 / (1 - pi2)
 Wc =  Wq1 + Wq2 + Wch1 + Wch2
 #Wc =  (Q/(1-pi1)) + (Lq2/A) + (Lq1/LAMBDA) + (Q/(1-pi2))
-for pair in sorted(result.items(), key=str):
+for pair in sorted(result2.items(), key=str):
     print('{}: {}'.format(*pair))
 print('Q: {}'.format(Q))
 print('Wc: {}'.format(Wc))
